@@ -11,7 +11,7 @@ def read_yaml(self,path_to_yaml: str) -> dict:
 
 
 def user_info(client):
-    response = clint.get("/me")
+    response = client.get("/me")
     return response.json()
    
 
