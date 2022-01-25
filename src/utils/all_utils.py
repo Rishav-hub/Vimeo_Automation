@@ -6,3 +6,15 @@ def read_yaml(path_to_yaml: str) -> dict:
         content = yaml.safe_load(yaml_file)
     logging.info(f"yaml file: {path_to_yaml} loaded successfully")
     return content
+
+def user_info(client):
+    response = client.get("/me")
+    return response.json()
+
+def video_info(client):
+    response = client.get("/me/videos")
+    return response.json()
+
+def folder_info(client):
+    response = client.get("/me/folders")
+    return response.json()
