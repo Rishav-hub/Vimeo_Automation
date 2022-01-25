@@ -10,7 +10,7 @@ def read_yaml(self,path_to_yaml: str) -> dict:
     return content
 
 
-def user_info(clint):
+def user_info(client):
     response = clint.get("/me")
     return response.json()
    
