@@ -1,5 +1,5 @@
-from src.upload_videos import VimeoUploader
+from src.upload_video import VimeoUploader
 
-
-vimeo_obj = VimeoUploader("secrets/secret.yaml", "config/config.yaml")
-vimeo_obj.upload()
+if __name__ == '__main__':
+    uploader = VimeoUploader(secret_path="secrets/secret.yaml", config_path="config/config.yaml")
+    uploader.upload()
