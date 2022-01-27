@@ -138,18 +138,30 @@ class VimeoManager:
         root_uri = self.get_uri(self.video_path)
         return root_uri
 
+    # def return_ancester_uri(self,folder_name):
+    #     response = self.client.get("/me/folders")
+    #     res = response.json()
+    #     # print(res)
+    #     for i in range(len(res['data'])):
+    #         if len(res['data'][i]['metadata']['connections']['ancestor_path']) > 0:
+              
+    #             if res['data'][i]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
+    #                 par_uri = res['data'][i]['metadata']['connections']['ancestor_path'][0]['uri']
+
+    #                 return par_uri
+    #         break
+
     def return_ancester_uri(self,folder_name):
         response = self.client.get("/me/folders")
         res = response.json()
-        # print(res)
-        for i in range(len(res['data'])):
-            if len(res['data'][i]['metadata']['connections']['ancestor_path']) > 0:
-              
-                if res['data'][i]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
-                    par_uri = res['data'][i]['metadata']['connections']['ancestor_path'][0]['uri']
+        for n in range(len(res['data'])):
+            if res['data'][n]['name'] == folder_name:
+                if res['data'][n]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
+                    par_uri = res['data'][n]['metadata']['connections']['ancestor_path'][0]['uri']
 
                     return par_uri
 
+   
 
 
     def return_sub_folder(self):

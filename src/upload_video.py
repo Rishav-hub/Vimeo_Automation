@@ -36,15 +36,27 @@ class VimeoUploader:
         root_uri = vim.get_uri(self.video_path)
         return root_uri
 
+    # def return_ancester_uri(self,folder_name):
+    #     response = self.client.get("/me/folders")
+    #     res = response.json()
+    #     # print(res)
+    #     for i in range(len(res['data'])):
+    #         if len(res['data'][i]['metadata']['connections']['ancestor_path']) > 0:
+     
+    #             if res['data'][i]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
+    #                 par_uri = res['data'][i]['metadata']['connections']['ancestor_path'][0]['uri']
+
+    #                 return par_uri
+    #         break
+
+    
     def return_ancester_uri(self,folder_name):
         response = self.client.get("/me/folders")
         res = response.json()
-        # print(res)
-        for i in range(len(res['data'])):
-            if len(res['data'][i]['metadata']['connections']['ancestor_path']) > 0:
-     
-                if res['data'][i]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
-                    par_uri = res['data'][i]['metadata']['connections']['ancestor_path'][0]['uri']
+        for n in range(len(res['data'])):
+            if res['data'][n]['name'] == folder_name:
+                if res['data'][n]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
+                    par_uri = res['data'][n]['metadata']['connections']['ancestor_path'][0]['uri']
 
                     return par_uri
 
@@ -84,7 +96,26 @@ class VimeoUploader:
                 print(f"{i} uploaded")
     
 
+    # def upload_sub_video(self):
+    #     for i in os.listdir(self.uploader_path):
+    #         if not i.endswith(".mp4"):
+    #             sub_url = f"{self.uploader_path}/{i}"
+    #             sub_contents = os.listdir(sub_url)
+    #             for video in sub_contents:
+    #                 if video.endswith(".mp4"):
+    #                     video_url = f"{sub_url}/{video}"
+    #                     uri = self.client.upload(video_url, data={
+    #                         'name': video,
+    #                         'description': 'The description goes here.',
+    #                         "privacy": { "view": "nobody"},
+    #                         'folder_uri' : vim.get_uri(i)
+    #                         })
+    #                     print(f"{video} uploaded")
+   
+
     def upload_sub_video(self):
+        response = self.client.get("/me/folders")
+        res = response.json()
         for i in os.listdir(self.uploader_path):
             if not i.endswith(".mp4"):
                 sub_url = f"{self.uploader_path}/{i}"
@@ -92,14 +123,21 @@ class VimeoUploader:
                 for video in sub_contents:
                     if video.endswith(".mp4"):
                         video_url = f"{sub_url}/{video}"
-                        uri = self.client.upload(video_url, data={
-                            'name': video,
-                            'description': 'The description goes here.',
-                            "privacy": { "view": "nobody"},
-                            'folder_uri' : vim.get_uri(i)
-                            })
-                        print(f"{video} uploaded")
-
+                        for n in range(len(res['data'])):
+                            if res['data'][n]['name'] == i:
+                            
+                                if res['data'][n]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
+            
+                                    par_uri = res['data'][n]['uri']
+                            
+                                    uri = self.client.upload(video_url, data={
+                                        'name': video,
+                                        'description': 'The description goes here.',
+                                        "privacy": { "view": "nobody"},
+                                        'folder_uri' : par_uri
+                                        })
+                                    print(f"{video} uploaded")
+                           
        
 
 
