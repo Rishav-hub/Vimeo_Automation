@@ -94,6 +94,8 @@ class VimeoEmbed:
                 excel_path = os.path.join('artifacts', f"{USER_FOLDER_NAME}.xlsx")
                 df.to_excel(excel_path, index=False)
                 logging.info(f"{USER_FOLDER_NAME} folder embed links saved to {excel_path}")
+            else:
+                raise(f"{USER_FOLDER_NAME} folder not found")
         except Exception as e:
             logging.error(e)
             raise(e)
