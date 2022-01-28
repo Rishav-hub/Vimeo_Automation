@@ -47,13 +47,6 @@ def upload_engine():
             key = request.form['key']
             secret = request.form['secret']
            
-
-            dict_file_secret = {
-                "token" : token,
-                "key" : key,
-                "secret" : secret
-            }
-
             print('Dumping Yaml')
             
             #config
@@ -72,9 +65,9 @@ def upload_engine():
                 yaml.dump(secrets, file)
                 
             
-            upload = uploader.upload()
+            uploader.upload()
 
-            return render_template('upload.html', output = upload)
+            return render_template('upload.html')
  
         except Exception as e:
             print("Input format not proper", end= '')
@@ -101,13 +94,6 @@ def embed_engine():
             key = request.form['key']
             secret = request.form['secret']
            
-
-            dict_file_secret = {
-                "token" : token,
-                "key" : key,
-                "secret" : secret
-            }
-
             print('Dumping Yaml')
             
             #config
@@ -127,9 +113,9 @@ def embed_engine():
                 
             USER_FOLDER_NAME = read_yaml('config/config.yaml')['video_path']
             
-            embed = embed_obj.get_embed(USER_FOLDER_NAME)
+            embed_obj.get_embed(USER_FOLDER_NAME)
 
-            return render_template('embed.html', output = embed)
+            return render_template('embed.html')
  
         except Exception as e:
             print("Input format not proper", end= '')
