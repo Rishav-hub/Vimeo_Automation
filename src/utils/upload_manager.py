@@ -2,9 +2,6 @@ from src.utils.all_utils import read_yaml
 import logging
 import os
 import vimeo
-from glob import glob
-import argparse
-
 
 
 logging_str = "[%(asctime)s: %(levelname)s: %(module)s]: %(message)s"
@@ -27,6 +24,7 @@ class VimeoManager:
 
         # config setup
         self.video_path = self.config["video_path"]
+        self.ROOT_FOLDER_NAME = self.config["ROOT_FOLDER_NAME"]
         self.current_path = os.getcwd()
 
         self.uploader_path = os.path.join(self.current_path, self.video_path + "/")
@@ -35,16 +33,32 @@ class VimeoManager:
         # print(response.json())
 
 
-    def folder_verification(self,folder_name):
-        response = self.client.get("/me/folders")
+    def return_all_page_data(self):
+        response = self.client.get(f"/users/164539921/folders?page=1")
         folder_response = response.json()
+        starting_page = int(folder_response['paging']['first'].split('=')[-1])
+        last_page = int(folder_response['paging']['last'].split('=')[-1])
 
-        folder_info = folder_response['data']
+        folder_response_list = []
 
+        for i in range(starting_page, last_page + 1):
+            response = self.client.get(f"/users/164539921/folders?page={i}")
+            folder_response = response.json()
+            folder_response_list.append(folder_response['data'])
+
+        return folder_response_list
+
+
+
+    def folder_verification(self,folder_name):
+        
+        folder_response_list = self.return_all_page_data()
+       
         folder_list = []
-        for i in folder_info:
-            folder_names = i['name']
-            folder_list.append(folder_names)
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                folder_list.append(j['name'])
 
         lower = (map(lambda x: x.lower(), folder_list))
         lower_folder_list = list(lower)
@@ -61,31 +75,40 @@ class VimeoManager:
 
 
     
-    def get_uri(self,folder_name):
-        response = self.client.get("/me/folders")
-        folder_response = response.json()
+    def get_sub_uri(self,folder_name):
+        folder_response_list = self.return_all_page_data()
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                if j['name'] == folder_name:
+                    if (j['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path) and (j['metadata']['connections']['ancestor_path'][1]['name'] == self.ROOT_FOLDER_NAME):
+                        print(f"This is the uri {j['uri']} of the folder {folder_name}")
+                        return j['uri']
 
-        folder_info = folder_response['data']
-        uri_list = []
-        folder_list = []
-        for i in folder_info:
-            folder_names = i['name']
-            uri_list.append(i['uri'])
-            folder_list.append(folder_names)
 
-        lower = (map(lambda x: x.lower(), folder_list))
-        lower_folder_list = list(lower)
+                
+                
+    
+    def root_folder_uri(self):
+        folder_response_list = self.return_all_page_data()
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                if j['name'] == self.ROOT_FOLDER_NAME:
+                    print(f'Retuned root folder uri: {j["uri"]}')
+                    return j['uri']
 
-        folder_index = lower_folder_list.index(folder_name.lower())
-        actual_uri = uri_list[folder_index]
-
-    #     print(uri_list)
-    #     print(lower_folder_list)
-
-    #     print(actual_uri)
-
-        return actual_uri
-
+    
+    def verify_parent_folder(self):
+        folder_response_list = self.return_all_page_data()
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                if j['name'] == self.video_path:
+                    if j['metadata']['connections']['ancestor_path'][0]['name'] == self.ROOT_FOLDER_NAME:
+                        return True
+                    else:
+                        return False
 
     
     def create_rootfolder(self,folder_name):
@@ -93,19 +116,16 @@ class VimeoManager:
         print(varified)
         
         
-        if varified == True:
+        if (varified == True):
             print("root folder already exists")
-            uri_folder = self.get_uri(folder_name)   
-#             print(uri_folder)
-            return uri_folder
+
 
         else:
             print("root folder doesn't exists")
-            self.client.post("/me/projects", data ={'name': folder_name})
+            ROOT_FOLDER_URI = self.root_folder_uri()
+            self.client.post("/me/projects", data ={'name': folder_name, 'parent_folder_uri' : ROOT_FOLDER_URI})
+            print('root folder created')
 
-            uri_folder = self.get_uri(folder_name)
-            
-            return uri_folder
 
 
     def create_subfolder(self,folder_name):
@@ -113,53 +133,41 @@ class VimeoManager:
         varified = self.folder_verification(folder_name)
         print(varified)
 
-        root_uri = self.return_roo_uri()
+        root_uri = self.return_parent_uri()
         ancestor_uri = self.return_ancester_uri(folder_name)
     
-        if varified == True and root_uri == ancestor_uri:
+        if (varified == True) and (root_uri == ancestor_uri):
             print("sub folder already exists")
-            uri_folder = self.get_uri(folder_name)   
-    #             print(uri_folder)
-            return uri_folder
 
         else:
             print("sub folder doesn't exists")
-            parent_folder_uri = self.create_rootfolder(self.video_path)
-            print(parent_folder_uri)
+            parent_folder_uri = self.return_parent_uri()
             response = self.client.post("/me/projects", data ={'name': folder_name, 'parent_folder_uri' : parent_folder_uri})
+            print('sub folder created')
 
 
-            uri_folder = self.get_uri(folder_name)
 
-            return uri_folder
+    def return_parent_uri(self):
+        folder_response_list = self.return_all_page_data()
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                if j['name'] == self.video_path:
+                    if j['metadata']['connections']['ancestor_path'][0]['name'] == self.ROOT_FOLDER_NAME:
+                        print(f"This is the uri {j['uri']} of the parent {self.video_path}")
+                        return j['uri']
 
-
-    def return_roo_uri(self):
-        root_uri = self.get_uri(self.video_path)
-        return root_uri
-
-    # def return_ancester_uri(self,folder_name):
-    #     response = self.client.get("/me/folders")
-    #     res = response.json()
-    #     # print(res)
-    #     for i in range(len(res['data'])):
-    #         if len(res['data'][i]['metadata']['connections']['ancestor_path']) > 0:
-              
-    #             if res['data'][i]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
-    #                 par_uri = res['data'][i]['metadata']['connections']['ancestor_path'][0]['uri']
-
-    #                 return par_uri
-    #         break
+   
 
     def return_ancester_uri(self,folder_name):
-        response = self.client.get("/me/folders")
-        res = response.json()
-        for n in range(len(res['data'])):
-            if res['data'][n]['name'] == folder_name:
-                if res['data'][n]['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path:
-                    par_uri = res['data'][n]['metadata']['connections']['ancestor_path'][0]['uri']
-
-                    return par_uri
+        folder_response_list = self.return_all_page_data()
+        for i in folder_response_list:
+            list_of_data = i
+            for j in list_of_data:
+                if j['name'] == folder_name:
+                    if (j['metadata']['connections']['ancestor_path'][0]['name'] == self.video_path) and (j['metadata']['connections']['ancestor_path'][1]['name'] == self.ROOT_FOLDER_NAME):
+                        print("Ansester True")
+                        return j['metadata']['connections']['parent_folder']['uri']
 
    
 
@@ -173,17 +181,3 @@ class VimeoManager:
         return sub_folder_list
 
 
-# if __name__ == '__main__':
-#     args = argparse.ArgumentParser()
-
-#     args.add_argument("--config", "-c", default="config/config.yaml")
-#     args.add_argument("--secret", "-s", default="secrets/secret.yaml")
-
-#     parsed_args = args.parse_args()
-
-#     try:
-#         VimeoManager(secret_path=parsed_args.secret, config_path=parsed_args.config)
-#         logging.info("Uploader manager is running")
-#     except Exception as e:
-#         logging.exception(e)
-#         raise e
