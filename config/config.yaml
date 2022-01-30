@@ -1,2 +1,3 @@
-video_path: TestContent
 ROOT_FOLDER_NAME: one neuron
+level: level0
+video_path: GanContent
