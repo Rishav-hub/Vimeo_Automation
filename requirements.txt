@@ -84,7 +84,7 @@ widgetsnbextension==3.5.2
 wincertstore==0.2
 wrapt==1.12.1
 zipp==3.7.0
-
-
+gunicorn
+Werkzeug==2.0.2
 # local packages -
 -e .
