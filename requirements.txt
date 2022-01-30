@@ -86,5 +86,7 @@ wrapt==1.12.1
 zipp==3.7.0
 gunicorn
 Werkzeug==2.0.2
+Flask
+Flask-Cors
 # local packages -
 -e .
