@@ -1,5 +1,5 @@
-from src.utils.all_utils import read_yaml, video_info, user_info, folder_info
-from src.utils.embed_utils import child_folder_list, folder_name_with_ID, parent_folder_ID_func
+from src.utils.all_utils import read_yaml
+from src.utils.embed_utils import extract_uri_id_link, folder_items_response, videos_response
 import logging
 import os
 import vimeo
@@ -31,74 +31,96 @@ class VimeoEmbed:
 
         self.uploader_path = os.path.join(self.current_path, self.video_path)
         self.client = vimeo.VimeoClient(token=self.tokens, key=self.keys, secret=self.sec)
-    def check_folder(self, folder_name):
-        try:
-            folder_json_data = folder_info(self.client)
-            folder_list = []
-
-            for folder in folder_json_data["data"]:
-                folder_list.append(folder["name"])
-
-            lower = (map(lambda x: x.lower(), folder_list))
-            lower_folder_list = list(lower)
-
-            if folder_name.lower() in lower_folder_list:
-                logging.info(f"{folder_name} folder found")
-                return True
-            else:
-                logging.info(f"{folder_name} folder NOT found")
-
-                return False    
-        except Exception as e:
-            logging.error(e)
-            raise(e)
     
-    def get_embed(self, USER_FOLDER_NAME):
-        b = self.check_folder(USER_FOLDER_NAME.lower())
-        embedded_link_list = []
-        video_name = []
-
-        root_folder_name = []
-
-        sub_folder_name = []
-
+    def level_0_embed_link(self, link):
         try:
-            if b:
-                video_json_data = video_info(self.client)
-                folder_json_data = folder_info(self.client)
+            logging.info('>>>>>>>Level 0 Process Started')
+            
+            uri_id = extract_uri_id_link(link)
+            video_response_data_list = videos_response(self.client, uri_id)
+            
+            response = self.client.get(f"/users/127902260/folders/{uri_id}")
+            folder_name = response.json()['name']
+            
+            embedded_link_list = []
+            video_name_list = []
+            root_folder_name = []
+            for video_data in video_response_data_list:
+                for i in video_data:
+                    video_name_list.append(i['name'])
+                    embedded_link_list.append(i['player_embed_url'])
+                    root_folder_name.append(folder_name)
+            data = {'Root Folder': root_folder_name,'Lesson Title': video_name_list, 'Lesson URL': embedded_link_list}
+            df = pd.DataFrame(data)
+            os.makedirs('artifacts/level_0', exist_ok= True)
+            df.to_excel(f'artifacts/level_0/{folder_name}.xlsx', index= False)
+            logging.info('Level 0 Process Completed >>>>>>')
+        except Exception as e:
+            logging.info(e)
+            raise e
+    
+    def level_1_embed_link(self, link):
+        try: 
+            uri_id = extract_uri_id_link(link)
+            folder_response_data_list = folder_items_response(self.client, uri_id)
+            
+            response = self.client.get(f"/users/127902260/folders/{uri_id}")
+            folder_name = response.json()['name']
+            
+            embedded_link_list = []
+            video_name_list = []
+            parent_folder_list = []
+            subfolder_uri_id_list = []
+            root_folder_name = []
+            for folder_data in folder_items_response(self.client, uri_id):
+                for i in folder_data:
+                    subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
 
-                data_list = video_json_data["data"]
-
-                for i in data_list:
-                    if i['parent_folder']:
-                        # print(i['parent_folder']['name'])
-                        iframe = i['embed']['html']
-                        embedded_link_list.append(iframe.split(' ')[1][5:-2])
-                        video_name.append(i['name'])
-                        if i['parent_folder']['name'] in child_folder_list(folder_json_data):
-                            folder_name_ID = folder_name_with_ID(folder_json_data)
-                            parent_folder_ID = parent_folder_ID_func(folder_json_data)
-                            name = folder_name_ID[i['parent_folder']['uri'].split('/')[-1]]
-                            sub_folder_name.append(name)
-                            root_folder_name.append(folder_name_ID[parent_folder_ID[i['parent_folder']['uri'].split('/')[-1]]])
-                        else:
-                            name = folder_name_ID[i['parent_folder']['uri'].split('/')[-1]]
-                            root_folder_name.append(name)
-                            sub_folder_name.append('None')
-
-                data = {'Video_Name': video_name, 'Link': embedded_link_list, 'ROOT_Folder_Name' :root_folder_name,'SUB_Folder_Name' : sub_folder_name}
-                df = pd.DataFrame(data)
-                df = df.where(df['ROOT_Folder_Name'] == USER_FOLDER_NAME).dropna()
-
-
-                excel_path = os.path.join(self.config['artifacts_path'], f"{USER_FOLDER_NAME}.xlsx")
-                df.to_excel(excel_path, index=False)
-                logging.info(f"{USER_FOLDER_NAME} folder embed links saved to {excel_path}")
+            for ids in subfolder_uri_id_list:
+                for video_data in videos_response(self.client, ids):
+                    for i in video_data:
+                        video_name_list.append(i['name'])
+                        embedded_link_list.append(i['player_embed_url'])
+                        parent_folder_list.append(i['parent_folder']['name'])
+                        root_folder_name.append(folder_name)
+                        
+            data = {'Root Folder': root_folder_name, 'Section Name': parent_folder_list, 'Lesson Title': video_name_list,'Lesson URL': embedded_link_list}
+            df = pd.DataFrame(data)
+            os.makedirs('artifacts/level_1', exist_ok= True)
+            df.to_excel(f'artifacts/level_1/{folder_name}.xlsx', index= False)
         except Exception as e:
             logging.error(e)
-            raise(e)
+            raise e
+                
+    def level_2_embed_link(self, link):
+        try: 
+            uri_id = extract_uri_id_link(link)
+            folder_response_data_list = folder_items_response(self.client, uri_id)
+            
+            response = self.client.get(f"/users/127902260/folders/{uri_id}")
+            folder_name = response.json()['name']
+            
+            embedded_link_list = []
+            video_name_list = []
+            parent_folder_list = []
+            subfolder_uri_id_list = []
+            root_folder_name = []
+            for folder_data in folder_items_response(self.client, uri_id):
+                for i in folder_data:
+                    subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
 
-
-        
-
-
+            for ids in subfolder_uri_id_list:
+                for video_data in videos_response(self.client, ids):
+                    for i in video_data:
+                        video_name_list.append(i['name'])
+                        embedded_link_list.append(i['player_embed_url'])
+                        parent_folder_list.append(i['parent_folder']['name'])
+                        root_folder_name.append(folder_name)
+                        
+            data = {'Root Folder': root_folder_name, 'Section Name': parent_folder_list, 'Lesson Title': video_name_list,'Lesson URL': embedded_link_list}
+            df = pd.DataFrame(data)
+            os.makedirs('artifacts/level_1', exist_ok= True)
+            df.to_excel(f'artifacts/level_1/{folder_name}.xlsx', index= False)
+        except Exception as e:
+            logging.error(e)
+            raise e

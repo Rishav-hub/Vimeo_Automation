@@ -1,17 +1,70 @@
-# from src.upload_videos import VimeoEmbed
-from gevent import config
+import logging
+import os
+from flask import Flask, render_template, request, send_file
+from werkzeug.utils import secure_filename
+from flask_cors import CORS, cross_origin
+import numpy as np
+import json
+import datetime
+import glob
+
 from src.embed_link import VimeoEmbed
-from src.utils.all_utils import read_yaml
 
-# video_upload("secrets/secret.yaml", "config/config.yaml")
+# initialising the flask app
+app = Flask(__name__)
+CORS(app)
+# Creating the upload folder
+download_folder = "artifacts/"
+if not os.path.exists(download_folder):
+    os.mkdir(download_folder)
 
-embed_obj=VimeoEmbed("secrets/secret.yaml", "config/config.yaml")
+@app.route('/')
+@cross_origin()
+def index():
+    return render_template('embed.html')
 
-config_path = "config/config.yaml"
-config_data = read_yaml(config_path)
+@app.route('/embed_engine', methods=['GET', 'POST'])
+@cross_origin()
+def embedfile():
+    if request.method == 'POST':
+        try:
 
-params_path = config_data['params_path']
+            folder_link = request.form['folder_link'] 
+            level = request.form['level']
+            global download_folder
+            cleandir = 'artifacts'
+            for i in os.listdir(cleandir):
+                os.remove(os.path.join(cleandir, i))
+            obj = VimeoEmbed('secrets\secret.yaml', 'config\config.yaml')
+            if level == 'Level 0':
+                obj.level_0_embed_link(folder_link)
+                file_name = os.listdir('artifacts/level_0')[0]
+                download_folder = f'artifacts/level_0/{file_name}'
+            elif level == 'Level 1':
+                obj.level_1_embed_link(folder_link)
+                file_name = os.listdir('artifacts/level_1')[0]
+                download_folder = f'artifacts/level_1/{file_name}'
+            elif level == 'Level 2':
+                obj.level_2_embed_link(folder_link)
+                file_name = os.listdir('artifacts/level_2')[0]
+                download_folder = f'artifacts/level_2/{file_name}'
+            return render_template('embed.html')
+        except Exception as e:
+            # logging.info("Input format not proper", end= '')
+            raise(e)
+    else:
+        render_template('embed.html')
 
-USER_FOLDER_NAME = read_yaml(params_path)['USER_FOLDER_NAME']
+# displaying the HTML template at the home url
+@app.route('/downloader')
+def downloader():
+   return render_template('download.html')
 
-embed_obj.get_embed(USER_FOLDER_NAME)
+# Sending the file to the user
+@app.route('/download')
+def download():
+   return send_file(download_folder, as_attachment=True)
+
+
+if __name__ == '__main__':
+    app.run()  # running the flask app
