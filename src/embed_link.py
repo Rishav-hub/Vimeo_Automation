@@ -93,7 +93,7 @@ class VimeoEmbed:
             raise e
                 
     def level_2_embed_link(self, link):
-        try: 
+        try:
             uri_id = extract_uri_id_link(link)
             
             response = self.client.get(f"/users/127902260/folders/{uri_id}")
@@ -105,11 +105,11 @@ class VimeoEmbed:
             parent_folder_list = []
             root_folder_name = []
             subject_name_list = []
-            for folder_data in folder_items_response(self.client, '7658377'):
-                for i in folder_data:
-            #         print(i['folder']['name'])
-                    sub_subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
             subfolder_uri_id_list = []
+            for folder_data in folder_items_response(self.client, uri_id):
+                for i in folder_data:
+                    sub_subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
+            
             for ids in sub_subfolder_uri_id_list:
                 for folder_data in folder_items_response(self.client, ids):
                     for i in folder_data:
@@ -122,6 +122,7 @@ class VimeoEmbed:
                         embedded_link_list.append(i['player_embed_url'])
                         parent_folder_list.append(i['parent_folder']['name'])
                         root_folder_name.append(folder_name)
+                        subject_name_list.append(i['parent_folder']['metadata']['connections']['ancestor_path'][0]['name'])
                         
             data = {'Root Folder': root_folder_name, 'Subject Name': subject_name_list,'Section Name': parent_folder_list, 'Lesson Title': video_name_list,'Lesson URL': embedded_link_list}
             df = pd.DataFrame(data)
