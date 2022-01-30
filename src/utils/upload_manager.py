@@ -34,7 +34,7 @@ class VimeoManager:
 
 
     def return_all_page_data(self):
-        response = self.client.get(f"/users/164539921/folders?page=1")
+        response = self.client.get(f"/users/127902260/folders?page=1")
         folder_response = response.json()
         starting_page = int(folder_response['paging']['first'].split('=')[-1])
         last_page = int(folder_response['paging']['last'].split('=')[-1])
@@ -42,7 +42,7 @@ class VimeoManager:
         folder_response_list = []
 
         for i in range(starting_page, last_page + 1):
-            response = self.client.get(f"/users/164539921/folders?page={i}")
+            response = self.client.get(f"/users/127902260/folders?page={i}")
             folder_response = response.json()
             folder_response_list.append(folder_response['data'])
 
