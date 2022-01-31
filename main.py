@@ -34,6 +34,7 @@ def upload_engine():
             level = request.form['level']
             root = request.form['root']
             folder_name = request.form['folder_name']
+            v_path = request.form['v_path']
            
             print('Dumping Yaml')
             
@@ -41,6 +42,7 @@ def upload_engine():
             config['video_path'] = folder_name
             config['ROOT_FOLDER_NAME'] = root
             config['level'] = level
+            config['video_path_list'] = v_path
 
      
             with open('config/config.yaml', 'w') as file:
@@ -76,5 +78,5 @@ def start_app():
 
 if __name__ == '__main__':
     uploader = VimeoUploader(secret_path="secrets/secret.yaml", config_path="config/config.yaml")
-    # uploader.upload()
-    start_app()
+    uploader.upload()
+    # start_app()

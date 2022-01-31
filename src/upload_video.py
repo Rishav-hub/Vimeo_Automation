@@ -23,6 +23,7 @@ class VimeoUploader:
         self.current_path = os.getcwd()
 
         self.uploader_path = os.path.join(self.current_path, self.video_path + "/")
+        self.video_path_list = self.config['video_path_list']
         self.client = vimeo.VimeoClient(token=self.tokens, key=self.keys, secret=self.sec)
         self.response = self.client.get("/me")
 
@@ -51,9 +52,9 @@ class VimeoUploader:
     def upload_root_video(self):
         parent_uri = vim.return_parent_uri()
         # print(root_uri)
-        for i in os.listdir(self.uploader_path):
+        for i in os.listdir(self.video_path_list):
             if i.endswith(".mp4"):
-                video_url = f"{self.uploader_path}/{i}"
+                video_url = f"{self.video_path_list}/{i}"
                 uri = self.client.upload(video_url, data={
                     'name': i,
                     'description': 'The description goes here.',
@@ -68,9 +69,9 @@ class VimeoUploader:
     def upload_sub_video(self):
         response = self.client.get("/me/folders")
         res = response.json()
-        for i in os.listdir(self.uploader_path):
+        for i in os.listdir(self.video_path_list):
             if not i.endswith(".mp4"):
-                sub_url = f"{self.uploader_path}/{i}"
+                sub_url = f"{self.video_path_list}/{i}"
                 sub_contents = os.listdir(sub_url)
                 for video in sub_contents:
                     if video.endswith(".mp4"):

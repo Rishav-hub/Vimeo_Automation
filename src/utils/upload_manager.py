@@ -28,6 +28,7 @@ class VimeoManager:
         self.current_path = os.getcwd()
 
         self.uploader_path = os.path.join(self.current_path, self.video_path + "/")
+        self.video_path_list = self.config['video_path_list']
         self.client = vimeo.VimeoClient(token=self.tokens, key=self.keys, secret=self.sec)
         self.response = self.client.get("/me")
         # print(response.json())
@@ -174,7 +175,7 @@ class VimeoManager:
 
     def return_sub_folder(self):
         sub_folder_list = []
-        for i in os.listdir(self.video_path):
+        for i in os.listdir(self.video_path_list):
             if not i.endswith('.mp4'):
                 sub_folder_list.append(i)
     #     print(sub_folder_list)
