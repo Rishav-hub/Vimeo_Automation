@@ -78,5 +78,5 @@ def start_app():
 
 if __name__ == '__main__':
     uploader = VimeoUploader(secret_path="secrets/secret.yaml", config_path="config/config.yaml")
-    uploader.upload()
-    # start_app()
+    # uploader.upload()
+    start_app()
