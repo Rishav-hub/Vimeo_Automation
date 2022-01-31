@@ -1,17 +1,17 @@
 from src.utils.all_utils import read_yaml
 from src.utils.embed_utils import extract_uri_id_link, folder_items_response, videos_response
-import logging
+# import logging
 import os
 import vimeo
 from glob import glob
 import pandas as pd
 
 
-logging_str = "[%(asctime)s: %(levelname)s: %(module)s]: %(message)s"
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)
-logging.basicConfig(filename=os.path.join(log_dir, 'running_logs.log'), level=logging.INFO, format=logging_str,
-                    filemode="a")
+# logging_str = "[%(asctime)s: %(levelname)s: %(module)s]: %(message)s"
+# log_dir = "logs"
+# os.makedirs(log_dir, exist_ok=True)
+# logging.basicConfig(filename=os.path.join(log_dir, 'running_logs.log'), level=logging.INFO, format=logging_str,
+#                     filemode="a")
 
 
 class VimeoEmbed:
@@ -34,7 +34,7 @@ class VimeoEmbed:
     
     def level_0_embed_link(self, link):
         try:
-            logging.info('>>>>>>>Level 0 Process Started')
+            # logging.info('>>>>>>>Level 0 Process Started')
             
             uri_id = extract_uri_id_link(link)
             video_response_data_list = videos_response(self.client, uri_id)
@@ -54,9 +54,9 @@ class VimeoEmbed:
             df = pd.DataFrame(data)
             os.makedirs('artifacts/level_0', exist_ok= True)
             df.to_excel(f'artifacts/level_0/{folder_name}.xlsx', index= False)
-            logging.info('Level 0 Process Completed >>>>>>')
+            # logging.info('Level 0 Process Completed >>>>>>')
         except Exception as e:
-            logging.info(e)
+            # logging.info(e)
             raise e
     
     def level_1_embed_link(self, link):
@@ -89,7 +89,7 @@ class VimeoEmbed:
             os.makedirs('artifacts/level_1', exist_ok= True)
             df.to_excel(f'artifacts/level_1/{folder_name}.xlsx', index= False)
         except Exception as e:
-            logging.error(e)
+            # logging.error(e)
             raise e
                 
     def level_2_embed_link(self, link):
@@ -129,5 +129,5 @@ class VimeoEmbed:
             os.makedirs('artifacts/level_2', exist_ok= True)
             df.to_excel(f'artifacts/level_2/{folder_name}.xlsx', index= False)
         except Exception as e:
-            logging.error(e)
+            # logging.error(e)
             raise e
