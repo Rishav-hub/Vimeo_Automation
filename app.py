@@ -32,9 +32,10 @@ def embedfile():
             folder_link = request.form['folder_link'] 
             level = request.form['level']
             cleandir = 'artifacts/'
-            for i in os.listdir(cleandir):
-                del_file = os.path.join(cleandir, i)
-                os.system(f'rm -rf {del_file}')
+            for i in glob.glob(cleandir + '*.xlsx'): 
+                # del_file = os.path.join(cleandir, i)
+                # os.system(f'rm -rf {del_file}')
+                os.remove(i)
             obj = VimeoEmbed('secrets/secret.yaml', 'config/config.yaml')
             if level == 'Level 0':
                 obj.level_0_embed_link(folder_link)
@@ -49,7 +50,7 @@ def embedfile():
                 obj.level_2_embed_link(folder_link)
                 # file_name = os.listdir('artifacts')[0]
                 # download_folder = f'artifacts/{file_name}'
-            return render_template('download.html')
+            return render_template('embed.html')
         except Exception as e:
             # logging.info("Input format not proper", end= '')
             raise(e)
