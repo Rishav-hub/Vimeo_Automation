@@ -52,10 +52,8 @@ class VimeoEmbed:
                     root_folder_name.append(folder_name)
             data = {'Root Folder': root_folder_name,'Lesson Title': video_name_list, 'Lesson URL': embedded_link_list}
             df = pd.DataFrame(data)
-            os.makedirs('artifacts/level_0', exist_ok= True)
-            df.to_excel(f'artifacts/level_0/{folder_name}.xlsx', index= False)
-            # df.to_excel(f'{folder_name}.xlsx', index= False)
-            # logging.info('Level 0 Process Completed >>>>>>')
+            # os.makedirs('artifacts/level_0', exist_ok= True)
+            df.to_excel(f'artifacts/{folder_name}.xlsx', index= False)
         except Exception as e:
             # logging.info(e)
             raise e
@@ -87,8 +85,8 @@ class VimeoEmbed:
                         
             data = {'Root Folder': root_folder_name, 'Section Name': parent_folder_list, 'Lesson Title': video_name_list,'Lesson URL': embedded_link_list}
             df = pd.DataFrame(data)
-            os.makedirs('artifacts/level_1', exist_ok= True)
-            df.to_excel(f'artifacts/level_1/{folder_name}.xlsx', index= False)
+            # os.makedirs('artifacts/level_1', exist_ok= True)
+            df.to_excel(f'artifacts/{folder_name}.xlsx', index= False)
         except Exception as e:
             # logging.error(e)
             raise e
@@ -127,8 +125,8 @@ class VimeoEmbed:
                         
             data = {'Root Folder': root_folder_name, 'Subject Name': subject_name_list,'Section Name': parent_folder_list, 'Lesson Title': video_name_list,'Lesson URL': embedded_link_list}
             df = pd.DataFrame(data)
-            os.makedirs('artifacts/level_2', exist_ok= True)
-            df.to_excel(f'artifacts/level_2/{folder_name}.xlsx', index= False)
+            # os.makedirs('artifacts/level_2', exist_ok= True)
+            df.to_excel(f'artifacts/{folder_name}.xlsx', index= False)
         except Exception as e:
             # logging.error(e)
             raise e

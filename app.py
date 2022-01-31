@@ -13,6 +13,7 @@ from src.embed_link import VimeoEmbed
 app = Flask(__name__)
 CORS(app)
 # Creating the upload folder
+
 download_folder = "artifacts/"
 if not os.path.exists(download_folder):
     os.mkdir(download_folder)
@@ -30,28 +31,25 @@ def embedfile():
 
             folder_link = request.form['folder_link'] 
             level = request.form['level']
-            global download_folder
-            cleandir = 'artifacts'
+            cleandir = 'artifacts/'
             for i in os.listdir(cleandir):
                 del_file = os.path.join(cleandir, i)
-            #     os.system(f'rm -rf {del_file}')
-                os.remove(del_file)
+                os.system(f'rm -rf {del_file}')
             obj = VimeoEmbed('secrets\secret.yaml', 'config\config.yaml')
             if level == 'Level 0':
                 obj.level_0_embed_link(folder_link)
-                file_name = os.listdir('artifacts/level_0')[0]
-                download_folder = f'artifacts/level_0/{file_name}'
-                # for i in glob.glob('*.xlsx', recursive=True):
-                #     download_folder = i
+                # file_name = os.listdir('artifacts')[0]
+                # print(file_name)
+                # download_folder = f'artifacts/{file_name}'
             elif level == 'Level 1':
                 obj.level_1_embed_link(folder_link)
-                file_name = os.listdir('artifacts/level_1')[0]
-                download_folder = f'artifacts/level_1/{file_name}'
+                # file_name = os.listdir('artifacts')[0]
+                # download_folder = f'artifacts/{file_name}'
             elif level == 'Level 2':
                 obj.level_2_embed_link(folder_link)
-                file_name = os.listdir('artifacts/level_2')[0]
-                download_folder = f'artifacts/level_2/{file_name}'
-            return render_template('embed.html')
+                # file_name = os.listdir('artifacts')[0]
+                # download_folder = f'artifacts/{file_name}'
+            return render_template('download.html')
         except Exception as e:
             # logging.info("Input format not proper", end= '')
             raise(e)
@@ -60,13 +58,15 @@ def embedfile():
 
 # displaying the HTML template at the home url
 @app.route('/downloader')
-def downloader():
+def index_1():
    return render_template('download.html')
 
 # Sending the file to the user
 @app.route('/download')
 def download():
-   return send_file(download_folder, as_attachment=True)
+    file_name = os.listdir('artifacts')[0]
+    download_folder_1 = f'artifacts/{file_name}'
+    return send_file(download_folder_1, as_attachment=True)
 
 
 if __name__ == '__main__':
