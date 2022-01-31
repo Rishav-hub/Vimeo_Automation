@@ -47,7 +47,7 @@ def embedfile():
                 # file_name = os.listdir('artifacts')[0]
                 # download_folder = f'artifacts/{file_name}'
             elif level == 'Level 2':
-                obj.level_2_embed_link(folder_link)
+                yield (obj.level_2_embed_link(folder_link))
                 # file_name = os.listdir('artifacts')[0]
                 # download_folder = f'artifacts/{file_name}'
             return render_template('embed.html')
