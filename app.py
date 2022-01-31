@@ -13,9 +13,9 @@ from src.embed_link import VimeoEmbed
 app = Flask(__name__)
 CORS(app)
 # Creating the upload folder
-# download_folder = "artifacts/"
-# if not os.path.exists(download_folder):
-#     os.mkdir(download_folder)
+download_folder = "artifacts/"
+if not os.path.exists(download_folder):
+    os.mkdir(download_folder)
 
 @app.route('/')
 @cross_origin()
@@ -32,17 +32,17 @@ def embedfile():
             level = request.form['level']
             global download_folder
             cleandir = 'artifacts'
-            # for i in os.listdir(cleandir):
-            #     del_file = os.path.join(cleandir, i)
+            for i in os.listdir(cleandir):
+                del_file = os.path.join(cleandir, i)
             #     os.system(f'rm -rf {del_file}')
-                # os.remove(del_file)
+                os.remove(del_file)
             obj = VimeoEmbed('secrets\secret.yaml', 'config\config.yaml')
             if level == 'Level 0':
                 obj.level_0_embed_link(folder_link)
-                # file_name = os.listdir('artifacts/level_0')[0]
-                # download_folder = f'artifacts/level_0/{file_name}'
-                for i in glob.glob('*.xlsx', recursive=True):
-                    download_folder = i
+                file_name = os.listdir('artifacts/level_0')[0]
+                download_folder = f'artifacts/level_0/{file_name}'
+                # for i in glob.glob('*.xlsx', recursive=True):
+                #     download_folder = i
             elif level == 'Level 1':
                 obj.level_1_embed_link(folder_link)
                 file_name = os.listdir('artifacts/level_1')[0]
