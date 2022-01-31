@@ -35,7 +35,8 @@ def embedfile():
             cleandir = 'artifacts'
             for i in os.listdir(cleandir):
                 del_file = os.path.join(cleandir, i)
-                os.system(f'rm -rf {del_file}')
+#                 os.system(f'rm -rf {del_file}')
+                os.remove(del_file)
             obj = VimeoEmbed('secrets\secret.yaml', 'config\config.yaml')
             if level == 'Level 0':
                 obj.level_0_embed_link(folder_link)
