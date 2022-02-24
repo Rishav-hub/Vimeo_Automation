@@ -73,7 +73,8 @@ class VimeoEmbed:
             root_folder_name = []
             for folder_data in folder_items_response(self.client, uri_id):
                 for i in folder_data:
-                    subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
+                    if i['type'] == 'folder':
+                        subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
 
             for ids in subfolder_uri_id_list:
                 for video_data in videos_response(self.client, ids):
@@ -107,12 +108,14 @@ class VimeoEmbed:
             subfolder_uri_id_list = []
             for folder_data in folder_items_response(self.client, uri_id):
                 for i in folder_data:
-                    sub_subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
+                    if i['type'] == 'folder':
+                        sub_subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
             
             for ids in sub_subfolder_uri_id_list:
                 for folder_data in folder_items_response(self.client, ids):
                     for i in folder_data:
-                        subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
+                        if i['type'] == 'folder':
+                            subfolder_uri_id_list.append(extract_uri_id_link(i['folder']['uri']))
 
             for ids in subfolder_uri_id_list:
                 for video_data in videos_response(self.client, ids):

@@ -131,3 +131,4 @@ dmypy.json
 Experiment Notebook.ipynb
 videos/
 Tasks.txt
+*.ipynb
